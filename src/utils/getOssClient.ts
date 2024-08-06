@@ -144,6 +144,61 @@ export const downloadClientFile = async (options: DownloadOptions) => {
   }
 };
 
+// 定义上传文件的参数类型
+interface UploadOptions {
+  name: string; // 文件名
+  file: File; // 要上传的文件
+  speedLimitKBps?: number; // 限速值（KB/s），可选
+  timeoutMs?: number; // 超时时间（毫秒），可选
+  partSize?: number; // 分块大小（字节），可选
+}
+
+/**
+ * 使用 multipartUpload 方法上传文件到OSS
+ * @param {UploadOptions} options - 上传选项
+ */
+export const multipartUploadClientFile = async (options: UploadOptions) => {
+  const { name, file, speedLimitKBps, timeoutMs, partSize } = options;
+
+  if (!file) {
+    console.error('No file selected.');
+    return;
+  }
+
+  if (speedLimitKBps !== undefined && (typeof speedLimitKBps !== 'number' || speedLimitKBps <= 0)) {
+    console.error('Invalid speed limit value.');
+    return;
+  }
+
+  if (timeoutMs !== undefined && (typeof timeoutMs !== 'number' || timeoutMs <= 0)) {
+    console.error('Invalid timeout value.');
+    return;
+  }
+
+  if (partSize !== undefined && (typeof partSize !== 'number' || partSize <= 0)) {
+    console.error('Invalid part size value.');
+    return;
+  }
+
+  try {
+    const client = await getOssClient();
+    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
+    const multipartOptions = {
+      headers,
+      timeout: timeoutMs,
+      partSize: partSize || 100 * 1024 * 1024, // 默认分块大小为100MB
+      progress: percent => {
+        console.log(`Upload progress: ${percent.toFixed(2)}%`);
+      }
+    };
+
+    const result = await client.multipartUpload(name, file, multipartOptions);
+    console.log('File uploaded successfully:', name, result);
+  } catch (error) {
+    console.error('Error uploading file:', error);
+  }
+};
+
 /**
  阿里云 OSS SDK 提供了多种方法来上传文件
  
