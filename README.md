@@ -11,6 +11,8 @@
   配置转ts版本 tailwind.config
   npm install -D typescript @types/node
 
+  npm install sass --save-dev
+
 ```
 
 This template should help get you started developing with Vue 3 in Vite.
