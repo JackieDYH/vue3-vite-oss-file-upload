@@ -1,6 +1,6 @@
 <template>
-  <header>
-    <RouterLink to="/">Home</RouterLink>
+  <header class="w-full text-center text-[18px]">
+    <RouterLink class="mr-2" to="/">Home</RouterLink>
     <RouterLink to="/about">About</RouterLink>
   </header>
 

@@ -1,6 +1,6 @@
 # vue3-vite-file-upload
 
-- 文件上传、图片上传
+- 阿里云 OSS 文件上传 速度限制 demo
 
 ## 插件安装
 
@@ -11,6 +11,13 @@
   配置转ts版本 tailwind.config
   npm install -D typescript @types/node
 
+2、阿里云OSS插件
+  npm install ali-oss
+  npm install @types/ali-oss --save-dev
+
+  [客户端直传](https://help.aliyun.com/zh/oss/use-cases/add-signatures-on-the-client-by-using-javascript-and-upload-data-to-oss?spm=a2c4g.11186623.0.i3#749191e1046mh)
+  [速度限制](https://help.aliyun.com/zh/oss/developer-reference/single-connection-bandwidth-throttling-7?spm=a2c4g.11186623.0.i12)
+  [速度限制2](https://www.alibabacloud.com/help/zh/oss/developer-reference/single-connection-bandwidth-throttling-3)
 ```
 
 This template should help get you started developing with Vue 3 in Vite.
