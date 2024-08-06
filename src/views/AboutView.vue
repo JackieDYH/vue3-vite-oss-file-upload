@@ -6,7 +6,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import getOssClient from '@/utils/getOssClient';
+import getOssClient, { uploadClientFile } from '@/utils/getOssClient';
 
 // 通过请求头设置限速。
 const headers = {
@@ -21,7 +21,8 @@ const uploadFile = async (e: Event) => {
   const client = await getOssClient();
   console.log('🚀 ~ client:', client);
   // 限速上传。
-  await client.put(file.name, file, { headers });
+  // await client.put(file.name, file, { headers });
+  await uploadClientFile({ name: file.name, file, speedLimitKBps: 800, timeoutMs: 120000 });
 };
 
 // 使用
