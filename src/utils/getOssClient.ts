@@ -60,3 +60,23 @@ export default async function getOssClient(): Promise<OSS> {
 
   return client;
 }
+
+export const uploadFile = async ({ name, file, speedLimitKBps, timeoutMs }) => {
+  if (!file) {
+    console.error('No file selected.');
+    return;
+  }
+  try {
+    const client = await getOssClient();
+
+    // 设置限速，单位为KB/s
+    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
+
+    // 上传文件
+    await client.put(file.name, file, { headers, timeout: timeoutMs });
+
+    console.log('File uploaded successfully:', file.name);
+  } catch (error) {
+    console.error('Error uploading file:', error);
+  }
+};
