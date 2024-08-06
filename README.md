@@ -11,6 +11,8 @@
   配置转ts版本 tailwind.config
   npm install -D typescript @types/node
 
+  npm install sass --save-dev
+
 2、阿里云OSS插件
   npm install ali-oss
   npm install @types/ali-oss --save-dev

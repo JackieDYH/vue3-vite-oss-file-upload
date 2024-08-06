@@ -40,7 +40,7 @@ const uploadFile = async (e: Event) => {
 // }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* @media (min-width: 1024px) {
   .about {
     min-height: 100vh;
