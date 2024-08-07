@@ -75,7 +75,7 @@ interface UploadOptions {
 }
 
 /**
- * 从OSS上传文件
+ * 从OSS上传文件 普通
  * @param {DownloadOptions} options - 上传选项
  */
 export const uploadClientFile = async (options: UploadOptions) => {
@@ -159,7 +159,7 @@ interface UploadOptions {
 }
 
 /**
- * 使用 multipartUpload 方法上传文件到OSS
+ * 使用 multipartUpload 方法上传文件到OSS 分片
  * @param {UploadOptions} options - 上传选项
  */
 export const multipartUploadClientFile = async (options: UploadOptions) => {
@@ -191,7 +191,7 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
     const multipartOptions = {
       headers,
       timeout: timeoutMs,
-      partSize: partSize || 100 * 1024 * 1024, // 默认分块大小为100MB
+      partSize: partSize || 5 * 1024 * 1024, // 每个分片的大小为 5 MB
       progress: percent => {
         console.log(`Upload progress: ${percent.toFixed(2)}%`);
       }
@@ -203,6 +203,17 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
     console.error('Error uploading file:', error);
   }
 };
+
+// 分割文件成多个分片
+function splitFileIntoChunks(file: File, chunkSize: number): Blob[] {
+  const chunks: Blob[] = [];
+  let start = 0;
+  while (start < file.size) {
+    chunks.push(file.slice(start, start + chunkSize));
+    start += chunkSize;
+  }
+  return chunks;
+}
 
 /**
  阿里云 OSS SDK 提供了多种方法来上传文件
