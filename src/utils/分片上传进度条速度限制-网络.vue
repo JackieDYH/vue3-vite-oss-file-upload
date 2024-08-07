@@ -67,7 +67,7 @@ const uploadFile = async () => {
         }
       };
 
-      // 上传当前分片
+      // 上传当前分片 错误的方式网络限速-待改正
       const result = await client.uploadPart(file.name, uploadId, i + 1, blob, options);
       parts.push({ ETag: result.etag, PartNumber: i + 1 });
 
