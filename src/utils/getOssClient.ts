@@ -23,11 +23,16 @@ type OssStsType = {
 const getOssSTSToken = () => {
   return new Promise<OssStsResponse>(resolve => {
     const params = {
+      // 认证凭据
       accessKeyId: import.meta.env.VITE_OSS_ACCESS_KEY_ID,
       accessKeySecret: import.meta.env.VITE_OSS_ACCESS_KEY_SECRET,
+      // 临时安全令牌
       stsToken: import.meta.env.VITE_OSS_STS_TOKEN,
+      // OSS服务所在的地域
       region: import.meta.env.VITE_OSS_REGION,
+      // OSS中的存储空间名称
       bucket: import.meta.env.VITE_OSS_BUCKET,
+      // 字段通常与STS Token相关联，表示临时凭证的有效期（单位：秒）
       expiration: 0
     };
     resolve({ code: 200, data: params });
