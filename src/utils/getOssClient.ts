@@ -162,9 +162,9 @@ interface UploadOptions {
  * 使用 multipartUpload 方法上传文件到OSS 分片
  * @param {UploadOptions} options - 上传选项
  */
-let checkpoint;
 export const multipartUploadClientFile = async (options: UploadOptions) => {
   const { name, file, speedLimitKBps, timeoutMs, partSize } = options;
+  let checkpoint;
 
   if (!file) {
     console.error('No file selected.');
@@ -188,7 +188,8 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
 
   try {
     const client = await getOssClient();
-    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
+    // 8 * 1024 * 100 等于 100 KB/s
+    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
     const multipartOptions = {
       headers,
       parallel: 5,
