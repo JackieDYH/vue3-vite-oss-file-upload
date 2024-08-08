@@ -162,6 +162,7 @@ interface UploadOptions {
  * 使用 multipartUpload 方法上传文件到OSS 分片
  * @param {UploadOptions} options - 上传选项
  */
+let checkpoint;
 export const multipartUploadClientFile = async (options: UploadOptions) => {
   const { name, file, speedLimitKBps, timeoutMs, partSize } = options;
 
@@ -190,14 +191,18 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
     const multipartOptions = {
       headers,
+      parallel: 5,
       timeout: timeoutMs,
       partSize: partSize || 5 * 1024 * 1024, // 每个分片的大小为 5 MB
-      progress: percent => {
-        console.log(`Upload progress: ${percent.toFixed(2)}%`);
+      checkpoint, //断点续传
+      progress: (percentage, cpt) => {
+        checkpoint = cpt;
+        console.log(`Upload progress: ${percentage.toFixed(2)}%`);
       }
     };
 
     const result = await client.multipartUpload(name, file, multipartOptions);
+    // const url = `http://${bucket}.${region}.aliyuncs.com/${name}`;
     console.log('File uploaded successfully:', name, result);
   } catch (error) {
     console.error('Error uploading file:', error);
