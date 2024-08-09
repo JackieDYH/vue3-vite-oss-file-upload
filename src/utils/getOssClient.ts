@@ -100,9 +100,9 @@ export const uploadClientFile = async (options: UploadOptions) => {
 
     // 设置限速，单位为KB/s
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
-
+    const options = { headers, timeout: timeoutMs };
     // 上传文件 timeout 单位为毫秒
-    await client.put(name, file, { headers, timeout: timeoutMs });
+    await client.put(name, file, options);
     console.log('File uploaded successfully:', name, file, headers, timeoutMs);
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -142,7 +142,8 @@ export const downloadClientFile = async (options: DownloadOptions) => {
   try {
     const client = await getOssClient();
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
-    await client.get(objectKey, localFilePath, { headers, timeout: timeoutMs });
+    const options = { headers, timeout: timeoutMs };
+    await client.get(objectKey, localFilePath, options);
     console.log('File downloaded successfully:', objectKey);
   } catch (error) {
     console.error('Error downloading file:', error);
@@ -190,7 +191,7 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
     const client = await getOssClient();
     // 8 * 1024 * 100 等于 100 KB/s
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
-    const multipartOptions = {
+    const options = {
       headers,
       parallel: 5,
       timeout: timeoutMs,
@@ -202,8 +203,28 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
       }
     };
 
-    const result = await client.multipartUpload(name, file, multipartOptions);
+    const result = await client.multipartUpload(name, file, options);
     // const url = `http://${bucket}.${region}.aliyuncs.com/${name}`;
+    /**
+     * 上传参数
+      const options = {
+        partSize: 100 * 1024 * 1024, // 分片大小 100MB
+      };
+
+      // 执行分片上传
+      const result = await client.multipartUpload(
+        'your-directory/' + name, // 对象名称，前缀为目录,可不配置前缀
+        File, // 本地文件
+        options
+      );
+     * result示例
+     {
+        ETag: '从OSS返回的ETag值',
+        Location: 'http://BucketName.oss-region.aliyuncs.com/your-directory/name', // 完整的文件访问URL
+        Bucket: 'BucketName', // Bucket名称
+        Key: 'your-directory/name' // 对象在OSS中的键名
+      }
+     */
     console.log('File uploaded successfully:', name, result);
   } catch (error) {
     console.error('Error uploading file:', error);
