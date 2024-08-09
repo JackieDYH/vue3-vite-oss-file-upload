@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>上传文件到OSS</title>
+  <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.0.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <form>
+      <div class="mb-3">
+        <label for="file" class="form-label">选择文件</label>
+        <input type="file" class="form-control" id="file" name="file" required />
+      </div>
+      <button type="submit" class="btn btn-primary">上传</button>
+    </form>
+  </div>
+  <script type="text/javascript">
+    let credentials = null;
+    const form = document.querySelector("form");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      // 临时凭证过期时，才重新获取，减少对 sts 服务的调用
+      if (isCredentialsExpired(credentials)) {
+        const response = await fetch("/get_sts_token", {
+          method: "GET",
+        });
+        if (!response.ok) {
+          // 处理错误的HTTP状态码
+          throw new Error(
+            `获取STS令牌失败： ${response.status} ${response.statusText}`
+          );
+        }
+        credentials = await response.json();
+      }
+      const client = new OSS({
+        // 将<YOUR_BUCKET>设置为OSS Bucket名称。
+        bucket: "<YOUR_BUCKET>",
+        // 将<YOUR_REGION>设置为OSS Bucket所在地域，例如oss-cn-hangzhou。
+        region: "<YOUR_REGION>",
+        accessKeyId: credentials.AccessKeyId,
+        accessKeySecret: credentials.AccessKeySecret,
+        stsToken: credentials.SecurityToken,
+      });
+
+      const fileInput = document.querySelector("#file");
+      const file = fileInput.files[0];
+      const result = await client.put('uploads/' + file.name, file);
+      console.log(result);
+    });
+
+    /**
+     * 判断临时凭证是否到期。
+     **/
+    function isCredentialsExpired(credentials) {
+      if (!credentials) {
+        return true;
+      }
+      const expireDate = new Date(credentials.Expiration);
+      const now = new Date();
+      // 如果有效期不足一分钟，视为过期。
+      return expireDate.getTime() - now.getTime() <= 60000;
+    }
+  </script>
+</body>
+
+</html>
