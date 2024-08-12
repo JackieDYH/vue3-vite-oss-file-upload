@@ -75,7 +75,7 @@ interface UploadOptions {
 }
 
 /**
- * 从OSS上传文件 普通
+ * 从OSS上传文件 普通 - ok
  * @param {DownloadOptions} options - 上传选项
  */
 export const uploadClientFile = async (options: UploadOptions) => {
@@ -99,11 +99,11 @@ export const uploadClientFile = async (options: UploadOptions) => {
     const client = await getOssClient();
 
     // 设置限速，单位为KB/s
-    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
+    const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
     const options = { headers, timeout: timeoutMs };
     // 上传文件 timeout 单位为毫秒
-    await client.put(name, file, options);
-    console.log('File uploaded successfully:', name, file, headers, timeoutMs);
+    const result = await client.put(name, file, options);
+    console.log('File uploaded successfully:', name, file, headers, timeoutMs, result);
   } catch (error) {
     console.error('Error uploading file:', error);
   }
@@ -111,8 +111,8 @@ export const uploadClientFile = async (options: UploadOptions) => {
 
 // 定义下载文件的参数类型
 interface DownloadOptions {
-  objectKey: string; // OSS 上的文件路径
-  localFilePath: string; // 本地保存路径
+  name: string; // OSS 上的文件路径
+  localFilePath?: string; // 本地保存路径
   speedLimitKBps?: number; // 限速值（KB/s），可选
   timeoutMs?: number; // 超时时间（毫秒），可选
 }
@@ -122,29 +122,52 @@ interface DownloadOptions {
  * @param {DownloadOptions} options - 下载选项
  */
 export const downloadClientFile = async (options: DownloadOptions) => {
-  const { objectKey, localFilePath, speedLimitKBps, timeoutMs } = options;
+  const { name, localFilePath, speedLimitKBps, timeoutMs } = options;
 
-  if (!objectKey || !localFilePath) {
-    console.error('Invalid object key or local file path.');
+  if (!name) {
+    console.error('Invalid object key.');
     return;
   }
 
-  if (speedLimitKBps !== undefined && (typeof speedLimitKBps !== 'number' || speedLimitKBps <= 0)) {
-    console.error('Invalid speed limit value.');
-    return;
-  }
+  // if (!localFilePath) {
+  //   console.error('Invalid local file path.');
+  //   return;
+  // }
 
-  if (timeoutMs !== undefined && (typeof timeoutMs !== 'number' || timeoutMs <= 0)) {
-    console.error('Invalid timeout value.');
-    return;
-  }
+  // if (speedLimitKBps !== undefined && (typeof speedLimitKBps !== 'number' || speedLimitKBps <= 0)) {
+  //   console.error('Invalid speed limit value.');
+  //   return;
+  // }
+
+  // if (timeoutMs !== undefined && (typeof timeoutMs !== 'number' || timeoutMs <= 0)) {
+  //   console.error('Invalid timeout value.');
+  //   return;
+  // }
 
   try {
     const client = await getOssClient();
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
     const options = { headers, timeout: timeoutMs };
-    await client.get(objectKey, localFilePath, options);
-    console.log('File downloaded successfully:', objectKey);
+    const res = await client.get(name, localFilePath, options);
+    console.log('File downloaded successfully:', name, res);
+    const a = document.createElement('a');
+    a.href = res.res.requestUrls[0]; //'https://mita-test.oss-cn-hangzhou.aliyuncs.com/20240810/%E6%89%93%E5%8D%B0%E6%9C%BA.glb';
+    a.download = name.split('/').pop();
+    a.click();
+    a.remove();
+
+    // 下载示例
+    // fetch('http://www.demo.com/aaa/bbb/ccc.png';)
+    // .then(response => response.arrayBuffer())
+    // .then(arrayBuffer => {
+    //   const blob = new Blob([arrayBuffer], {type: 'image/png'});
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'ccc.png';
+    //   a.click();
+    // })
+    // .catch(error => console.error('Error:', error));
   } catch (error) {
     console.error('Error downloading file:', error);
   }
@@ -160,8 +183,11 @@ interface UploadOptions {
 }
 
 /**
- * 使用 multipartUpload 方法上传文件到OSS 分片
+ * 使用 multipartUpload 方法上传文件到OSS 分片 - ok
  * @param {UploadOptions} options - 上传选项
+ * 公共读：文件URL的格式为https://BucketName.Endpoint/ObjectName。其中，ObjectName需填写包含文件夹以及文件后缀在内的该文件的完整路径
+私有属性的话，需要通过sdk获取工具去生成私有携带鉴权的链接私有属性链接参考：
+https://help.aliyun.com/zh/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects?spm=a2c4g.11186623.0.i4#8d5599a05d4ik
  */
 export const multipartUploadClientFile = async (options: UploadOptions) => {
   const { name, file, speedLimitKBps, timeoutMs, partSize } = options;
@@ -199,12 +225,15 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
       checkpoint, //断点续传
       progress: (percentage, cpt) => {
         checkpoint = cpt;
-        console.log(`Upload progress: ${percentage.toFixed(2)}%`);
+        console.log(`Upload progress: ${Math.floor(percentage * 100)}%`);
       }
     };
 
     const result = await client.multipartUpload(name, file, options);
+    // http://mita-test.oss-cn-hangzhou.aliyuncs.com/20240810/xxx.glb
     // const url = `http://${bucket}.${region}.aliyuncs.com/${name}`;
+    // console.log('URL:',`http://${import.meta.env.VITE_OSS_BUCKET}.${import.meta.env.VITE_OSS_REGION}.aliyuncs.com/${name}`);
+
     /**
      * 上传参数
       const options = {
@@ -213,6 +242,10 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
 
       // 执行分片上传
       const result = await client.multipartUpload(
+        console.log("🚀 ~ getOssClient ~ client:", client)
+        console.log("🚀 ~ getOssClient ~ client:", client)
+        console.log("🚀 ~ getOssClient ~ client:", client)
+        console.log("🚀 ~ getOssClient ~ client:", client)
         'your-directory/' + name, // 对象名称，前缀为目录,可不配置前缀
         File, // 本地文件
         options

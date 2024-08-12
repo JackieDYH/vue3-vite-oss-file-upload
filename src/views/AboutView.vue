@@ -2,11 +2,16 @@
   <div class="about">
     <h1>This is an about page</h1>
     <input type="file" @change="uploadFile" />
+    <button @click="downloadFile">下载</button>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import getOssClient, { uploadClientFile, multipartUploadClientFile } from '@/utils/getOssClient';
+import getOssClient, {
+  uploadClientFile,
+  multipartUploadClientFile,
+  downloadClientFile
+} from '@/utils/getOssClient';
 
 // 通过请求头设置限速。
 const headers = {
@@ -22,13 +27,26 @@ const uploadFile = async (e: Event) => {
   console.log('🚀 ~ client:', client);
   // 限速上传。
   // await client.put(file.name, file, { headers });
-  // await uploadClientFile({ name: file.name, file, speedLimitKBps: 800, timeoutMs: 120000 });
+  // await uploadClientFile({
+  //   name: '20240810/' + file.name,
+  //   file,
+  //   speedLimitKBps: 800,
+  //   timeoutMs: 120000
+  // });
+  // 分片上传 ok
   await multipartUploadClientFile({
-    name: file.name,
+    name: '20240810/' + file.name,
     file,
-    speedLimitKBps: 800,
+    speedLimitKBps: 100000, //30KB/s 100000 = 100MB/s
     timeoutMs: 120000,
-    partSize: 60 * 1024 * 1024
+    partSize: 100 * 1024 * 1024
+  });
+};
+
+// 下载文件
+const downloadFile = async () => {
+  await downloadClientFile({
+    name: '20240810/打印机.glb'
   });
 };
 
