@@ -149,6 +149,8 @@ export const downloadClientFile = async (options: DownloadOptions) => {
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024}` } : {};
     const options = { headers, timeout: timeoutMs };
     const res = await client.get(name, localFilePath, options);
+    // 返回下载链接
+    // const res = await client.signatureUrl(name);
     console.log('File downloaded successfully:', name, res);
     const a = document.createElement('a');
     a.href = res.res.requestUrls[0]; //'https://mita-test.oss-cn-hangzhou.aliyuncs.com/20240810/%E6%89%93%E5%8D%B0%E6%9C%BA.glb';
