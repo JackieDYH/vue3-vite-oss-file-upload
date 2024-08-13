@@ -35,7 +35,8 @@ const uploadFile = async (e: Event) => {
   // });
   // 分片上传 ok
   await multipartUploadClientFile({
-    name: '20240810/' + file.name,
+    // name: '20240810/' + file.name,
+    name: file.name.split('.').pop()!,
     file,
     speedLimitKBps: 100000, //30KB/s 100000 = 100MB/s
     timeoutMs: 120000,

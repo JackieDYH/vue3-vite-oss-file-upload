@@ -1,4 +1,5 @@
 import OSS from 'ali-oss';
+import { ossSTSToken } from '@/api/index';
 interface OssStsResponse {
   code: number;
   data: {
@@ -20,23 +21,41 @@ type OssStsType = {
   bucket: string;
 };
 
-const getOssSTSToken = () => {
-  return new Promise<OssStsResponse>(resolve => {
-    const params = {
-      // 认证凭据
-      accessKeyId: import.meta.env.VITE_OSS_ACCESS_KEY_ID,
-      accessKeySecret: import.meta.env.VITE_OSS_ACCESS_KEY_SECRET,
-      // 临时安全令牌
-      stsToken: import.meta.env.VITE_OSS_STS_TOKEN,
-      // OSS服务所在的地域
-      region: import.meta.env.VITE_OSS_REGION,
-      // OSS中的存储空间名称
-      bucket: import.meta.env.VITE_OSS_BUCKET,
-      // 字段通常与STS Token相关联，表示临时凭证的有效期（单位：秒）
-      expiration: 0
-    };
-    resolve({ code: 200, data: params });
-  });
+const getOssSTSToken = async () => {
+  const res = await ossSTSToken();
+  return res;
+  // 返回格式数据
+  // {
+  //   code: 0,
+  //   data: {
+  //     region: 'oss-cn-hangzhou.aliyuncs.com',
+  //     accessKeyId: 'STS.NSrSK1tQK3UXQFwfRLuvqTyvM',
+  //     accessKeySecret: '9QA3HPomJGMYrdNCLic68MXFYAJwEEkPv1KgUPUCuVQc',
+  //     stsToken:
+  //       'CAISgQN1q6Ft5B2yfSjIr5DHGPGFmY5qhJezU2DGglIZefldu7zdrzz2IHhMdXRtAOoZsfs0m2hX7PwblqN+c61UeUL5XPFMtlakLNpdOdivgde8yJBZonzMewHKefWSvqL7Z+H+U6mSGJOEYEzFkSle2KbzcS7YMXWuLZyOj+wADLEQRRLqVSdaI91UKwB+0vZ4U0HcLvGwKBXnr3PNBU5zwGpGhHh49L60z7/BiGXXh0aozfQO9cajYMqhbtVleYtySMvyno4Ef6HagilL8EoIpuUkia1Y8HKcstSaD1RVpFekS7OOroIwdVcpOvFiQf4c8anG+Kcm6rCJpePe0A1QOOxZaSPbSb27zdHMcOHTbY5hJOumYi6SjY/UacGq6Vl9exYBPQZNYMEkI3l5BhE8+aJqyVIWCzogCybUqMjtuMleufIdRGU1elQYZnal9xSIA1f5Kx4BHtLlDWRi+UbLXMEojSICfX0JSUh7s0tbmtE0QtmLwuaqvUY7pgj4z4SgD5u+GoABY+ECttfvOha3x07m2LK5Bi2nm3p8wCORmQKdbjw1AqWIWN+IcVQbJw7f74UwUeYmWmfvnPgTsNqGO2yeQQZyPNDxQec5xASswgYaeWKHWbPFWgz83e/nrVL3KYPmmGuiJBZKLW4v41aydjxckrakCFKhIgP3VrKJvCLCGeVSyTcgAA==',
+  //     bucket: 'mita-test',
+  //     catalogue: '20240812/1792883528775671810'
+  //   },
+  //   msg: '',
+  //   requestId: 'd73b16c2-88c3-4638-91ea-906576d7f36e'
+  // }
+  // 模拟数据
+  // return new Promise<OssStsResponse>(resolve => {
+  //   const params = {
+  //     // 认证凭据
+  //     accessKeyId: import.meta.env.VITE_OSS_ACCESS_KEY_ID,
+  //     accessKeySecret: import.meta.env.VITE_OSS_ACCESS_KEY_SECRET,
+  //     // 临时安全令牌
+  //     stsToken: import.meta.env.VITE_OSS_STS_TOKEN,
+  //     // OSS服务所在的地域
+  //     region: import.meta.env.VITE_OSS_REGION,
+  //     // OSS中的存储空间名称
+  //     bucket: import.meta.env.VITE_OSS_BUCKET,
+  //     // 字段通常与STS Token相关联，表示临时凭证的有效期（单位：秒）
+  //     expiration: 0
+  //   };
+  //   resolve({ code: 200, data: params });
+  // });
 };
 
 /**
@@ -49,18 +68,18 @@ const getOssSTSToken = () => {
  */
 export default async function getOssClient(): Promise<OSS> {
   const { code, data: params } = await getOssSTSToken();
-  if (code !== 200) throw new Error('Failed to fetch OSS STS token.'); // 抛出错误而不是返回 false
+  if (code !== 0) throw new Error('Failed to fetch OSS STS token.'); // 抛出错误而不是返回 false
 
   const client = new OSS({
-    ...params,
-    refreshSTSTokenInterval: params.expiration * 1000, // 注意这里转换为毫秒
-    refreshSTSToken: async () => {
-      const { code, data } = await getOssSTSToken(); // 过期后刷新token
-      if (code === 200) {
-        return data;
-      }
-      throw new Error('Failed to refresh OSS STS token.');
-    }
+    ...params
+    // refreshSTSTokenInterval: params.expiration * 1000, // 注意这里转换为毫秒
+    // refreshSTSToken: async () => {
+    //   const { code, data } = await getOssSTSToken(); // 过期后刷新token
+    //   if (code === 0) {
+    //     return data;
+    //   }
+    //   throw new Error('Failed to refresh OSS STS token.');
+    // }
   });
 
   return client;
@@ -231,7 +250,14 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
       }
     };
 
-    const result = await client.multipartUpload(name, file, options);
+    const result = await client.multipartUpload(
+      `${client.options.catalogue}.${name}`,
+      file,
+      options
+    );
+    console.log('URL:', `https://${result.bucket}.oss-cn-hangzhou.aliyuncs.com/${result.name}`);
+    console.log('🚀 ~ multipartUploadClientFile ~ result:', result);
+
     // http://mita-test.oss-cn-hangzhou.aliyuncs.com/20240810/xxx.glb
     // const url = `http://${bucket}.${region}.aliyuncs.com/${name}`;
     // console.log('URL:',`http://${import.meta.env.VITE_OSS_BUCKET}.${import.meta.env.VITE_OSS_REGION}.aliyuncs.com/${name}`);
