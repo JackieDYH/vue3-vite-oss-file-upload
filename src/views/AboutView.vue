@@ -23,8 +23,8 @@ const uploadFile = async (e: Event) => {
   const file = target.files[0];
   console.log('🚀 ~ uploadFile ~ file:', file);
 
-  const client = await getOssClient();
-  console.log('🚀 ~ client:', client);
+  // const client = await getOssClient();
+  // console.log('🚀 ~ client:', client);
   // 限速上传。
   // await client.put(file.name, file, { headers });
   // await uploadClientFile({
@@ -38,7 +38,7 @@ const uploadFile = async (e: Event) => {
     // name: '20240810/' + file.name,
     name: file.name.split('.').pop()!,
     file,
-    speedLimitKBps: 100000, //30KB/s 100000 = 100MB/s
+    speedLimitKBps: 1000, //30KB/s 100000 = 100MB/s  1000 = 1MB/s
     timeoutMs: 120000,
     partSize: 100 * 1024 * 1024
   });

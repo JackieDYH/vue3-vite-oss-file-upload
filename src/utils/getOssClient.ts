@@ -67,14 +67,15 @@ const getOssSTSToken = async () => {
  * @param bucket Bucket名称
  */
 export default async function getOssClient(): Promise<OSS> {
-  const { code, data: params } = await getOssSTSToken();
+  const { code, data: params } = await ossSTSToken();
   if (code !== 0) throw new Error('Failed to fetch OSS STS token.'); // 抛出错误而不是返回 false
 
   const client = new OSS({
     ...params
     // refreshSTSTokenInterval: params.expiration * 1000, // 注意这里转换为毫秒
     // refreshSTSToken: async () => {
-    //   const { code, data } = await getOssSTSToken(); // 过期后刷新token
+    //   const { code, data } = await ossSTSToken(); // 过期后刷新token
+
     //   if (code === 0) {
     //     return data;
     //   }
@@ -236,6 +237,7 @@ export const multipartUploadClientFile = async (options: UploadOptions) => {
 
   try {
     const client = await getOssClient();
+    console.log('🚀 ~ multipartUploadClientFile ~ client:', client);
     // 8 * 1024 * 100 等于 100 KB/s
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
     const options = {
