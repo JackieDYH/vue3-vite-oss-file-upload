@@ -121,7 +121,11 @@ export const uploadClientFile = async (options: UploadOptions) => {
 
     // 设置限速，单位为KB/s
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
-    const options = { headers, timeout: timeoutMs };
+    // 普通上传不支持断点续传和进度
+    const options = {
+      headers,
+      timeout: timeoutMs
+    };
     // 上传文件 timeout 单位为毫秒
     const result = await client.put(name, file, options);
     console.log('File uploaded successfully:', name, file, headers, timeoutMs, result);
