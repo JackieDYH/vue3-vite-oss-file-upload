@@ -71,16 +71,17 @@ export default async function getOssClient(): Promise<OSS> {
   if (code !== 0) throw new Error('Failed to fetch OSS STS token.'); // 抛出错误而不是返回 false
 
   const client = new OSS({
-    ...params
-    // refreshSTSTokenInterval: params.expiration * 1000, // 注意这里转换为毫秒
-    // refreshSTSToken: async () => {
-    //   const { code, data } = await ossSTSToken(); // 过期后刷新token
+    ...params,
+    refreshSTSTokenInterval: 10 * 1000, // 注意这里转换为毫秒 10s params.expiration * 1000
+    refreshSTSToken: async () => {
+      const { code, data } = await ossSTSToken(); // 过期后刷新token
+      console.log('refreshSTSToken', code, data);
 
-    //   if (code === 0) {
-    //     return data;
-    //   }
-    //   throw new Error('Failed to refresh OSS STS token.');
-    // }
+      if (code === 0) {
+        return data;
+      }
+      throw new Error('Failed to refresh OSS STS token.');
+    }
   });
 
   return client;

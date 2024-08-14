@@ -38,9 +38,9 @@ const uploadFile = async (e: Event) => {
     // name: '20240810/' + file.name,
     name: file.name.split('.').pop()!,
     file,
-    speedLimitKBps: 1000, //30KB/s 100000 = 100MB/s  1000 = 1MB/s
+    speedLimitKBps: 100, //30KB/s 100000 = 100MB/s  1000 = 1MB/s
     timeoutMs: 120000,
-    partSize: 100 * 1024 * 1024
+    partSize: 5 * 1024 * 1024 //100 * 1024 * 1024 = 100MB
   });
 };
 
