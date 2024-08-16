@@ -120,6 +120,8 @@ export const uploadClientFile = async (options: UploadOptions) => {
     const client = await getOssClient();
 
     // 设置限速，单位为KB/s
+    // 最小100KB/s 最大100MB/s
+    // 用于设置OSS上传或下载的流量限制，其单位为bit/s。根据提供的资料，限速值的取值范围是819200 bit/s（即100 KB/s）到838860800 bit/s。因此，最大限速为838860800 bit/s，而 最小区限速为819200 bit/s 。
     const headers = speedLimitKBps ? { 'x-oss-traffic-limit': `${speedLimitKBps * 1024 * 8}` } : {};
     // 普通上传不支持断点续传和进度
     const options = {
