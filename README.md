@@ -1,48 +1,29 @@
-# vue3-vite-file-upload
+# 介绍
+基本上是全网“最”详细的大文件上传教程
+# 技术架构
+有vue2（基础版）跟vue3（完整版）两个不同版本
 
-- 文件上传、图片上传
+vue2 + vue-cli5 + axios + element ui
 
-## 插件安装
+vue3 + vite + axios  
 
-```
-1、tailwindcss
-  npm install -D tailwindcss postcss autoprefixer
-  npx tailwindcss init -p
-  配置转ts版本 tailwind.config
-  npm install -D typescript @types/node
+搭配node.js + express 使用
 
-  npm install sass --save-dev
+# 使用说明
 
-```
+1.文件拉取下来后，直接双击 npmInstallAll.bat 文件一次性安装vue2 + vue3 + 后端所需依赖
 
-This template should help get you started developing with Vue 3 in Vite.
+2.前端项目:v2-file-upload 跟 v3-file-upload, 后端项目:node-server
 
-## Recommended IDE Setup
+3.两个前端项目的启动命令都是 npm run dev
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+4.node两个版本启动命令分别是：npm run dev:v2  跟  npm run dev:v3
 
-## Type Support for `.vue` Imports in TS
+5.node >= 14
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+# 代码说明文章
+掘金社区：[“保姆级”大文件上传教程 :切片上传 + 断点续传 + 秒传 + 暂停上传](https://juejin.cn/post/7385098943942934582)
 
-## Customize configuration
+CSDN：[“保姆级”大文件上传教程 :切片上传 + 断点续传 + 秒传 + 暂停上传](https://blog.csdn.net/cpc980209/article/details/140093954?spm=1001.2014.3001.5502)
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
+(参考)[https://github.com/cpc0209/v2v3-large-file-upload]
