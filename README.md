@@ -21,6 +21,26 @@
   [客户端直传](https://help.aliyun.com/zh/oss/use-cases/add-signatures-on-the-client-by-using-javascript-and-upload-data-to-oss?spm=a2c4g.11186623.0.i3#749191e1046mh)
   [速度限制](https://help.aliyun.com/zh/oss/developer-reference/single-connection-bandwidth-throttling-7?spm=a2c4g.11186623.0.i12)
   [速度限制2](https://www.alibabacloud.com/help/zh/oss/developer-reference/single-connection-bandwidth-throttling-3)
+
+
+  [两种办法](https://github.com/ali-sdk/ali-oss/issues/1258)
+  第一种：让ali-oss参与构建过程，这样就能将ts编译成js。
+
+  export default defineNuxtConfig({
+    build: {
+      transpile: ['ali-oss']
+    }
+  })
+  第二种，使用CDN window.OSS
+
+  export default defineNuxtConfig({
+    app: {
+      head: {
+        script: [
+          { src: "http://gosspublic.alicdn.com/aliyun-oss-sdk-6.18.1.min.js" }
+        ]
+      },
+  })
 ```
 
 This template should help get you started developing with Vue 3 in Vite.
