@@ -16,6 +16,7 @@
 2、阿里云OSS插件
   npm install ali-oss
   npm install @types/ali-oss --save-dev
+  - cdn链接https://gosspublic.alicdn.com/aliyun-oss-sdk-6.20.0.min.js
 
   [客户端直传](https://help.aliyun.com/zh/oss/use-cases/add-signatures-on-the-client-by-using-javascript-and-upload-data-to-oss?spm=a2c4g.11186623.0.i3#749191e1046mh)
   [速度限制](https://help.aliyun.com/zh/oss/developer-reference/single-connection-bandwidth-throttling-7?spm=a2c4g.11186623.0.i12)
