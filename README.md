@@ -1,6 +1,6 @@
-# vue3-vite-file-upload
+# vue3-vite-oss-file-upload
 
-- 阿里云 OSS 文件上传 速度限制 demo
+- 阿里云(aliyun-oss-sdk) OSS 文件上传 速度限制 demo
 
 ## 插件安装
 
